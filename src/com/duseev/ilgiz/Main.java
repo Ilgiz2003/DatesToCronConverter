@@ -10,6 +10,7 @@ public class Main {
         realiz.print();
         realiz.fillingCronDates();
         realiz.printCronDates();
+        realiz.convert();
 
 
     }
