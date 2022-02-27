@@ -5,17 +5,19 @@ import java.util.LinkedList;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
-public class Realization {
+public class Realization implements DatesToCronConverter {
     LinkedList<String> dates = new LinkedList<>();
     public void filling() {
-    String date1="2022-01-25T08:00:00";
-    String date2="2022-01-25T08:30:00";
-    String date3="2022-01-25T09:00:00";
-    String date4="2022-01-25T09:30:00";
-    String date5="2022-01-26T08:00:00";
-    String date6="2022-01-26T08:30:00";
-    String date7="2022-01-26T09:00:00";
-    String date8="2022-01-26T09:30:00";
+    String date1="2022-01-24T19:53:00";
+    String date2="2022-01-24T19:54:00";
+    String date3="2022-01-24T19:55:00";
+    String date4="2022-01-24T19:56:00";
+    String date5="2022-01-24T19:57:00";
+    String date6="2022-01-24T19:58:00";
+    String date7="2022-01-24T19:59:00";
+    String date8="2022-01-24T19:00:00";
+    String date9="2022-01-24T19:01:00";
+    String date10="2022-01-24T19:02:00";
         dates.add(date1);
         dates.add(date2);
         dates.add(date3);
@@ -24,6 +26,8 @@ public class Realization {
         dates.add(date6);
         dates.add(date7);
         dates.add(date8);
+        dates.add(date9);
+        dates.add(date10);
     }
     public void sort(){
         dates.sort(String::compareToIgnoreCase);
@@ -110,13 +114,14 @@ public class Realization {
             System.out.println(cronDates.get(i));
         }
     }
-    public void convert(){
+    public String convert(){
         int []countweekday=new int[7];
         int []countmonth=new int[13];
         int []countday=new int[32];
         int []counthour=new int[24];
         int []countminutes =new int[60];
         int []countseconds=new int[60];
+        int []difference=new int [120];
         String valuemaxSecondsCount="*";
         String valuemaxMinutesCount="*";
         String valuemaxHourCount="*";
@@ -129,6 +134,12 @@ public class Realization {
         int maxDayCount;
         int maxMonthCount;
         int maxWeekdayCount;
+        int countmaxSecondsCount=0;
+        int countmaxMinutesCount=0;
+        int countmaxHourCount=0;
+        int countmaxDayCount=0;
+        int countmaxMonthCount=0;
+        int countmaxWeekdayCount=0;
         int ListSize=cronDates.size();
         for(int i=0;i<ListSize;i++){
             countseconds[cronDates.get(i).seconds]++;
@@ -138,7 +149,7 @@ public class Realization {
         maxSecondsCount = optionalInt.getAsInt();
 
         if(maxSecondsCount > ListSize/2){
-            for(int i=0;i<59;i++){
+            for(int i=0;i<60;i++){
                 if(countseconds[i]==maxSecondsCount){
                     valuemaxSecondsCount = "" + i;
                 }
@@ -152,16 +163,13 @@ public class Realization {
             optionalInt = intStream.max();
             maxMinutesCount = optionalInt.getAsInt();
             if(maxMinutesCount>ListSize/2){
-                for(int i=0;i<59;i++){
+                for(int i=0;i<60;i++){
                     if(countminutes[i]==maxMinutesCount){
                         valuemaxMinutesCount = "" + i;
                     }
                 }
-                //код для этого случая
-            }
-            else {
                 for(int i=0;i<ListSize;i++){
-                    if(cronDates.get(i).seconds==Integer.parseInt(valuemaxSecondsCount.trim())){
+                    if(cronDates.get(i).minutes==Integer.parseInt(valuemaxMinutesCount.trim())){
                         counthour[cronDates.get(i).hour]++;
                     }
                 }
@@ -169,7 +177,7 @@ public class Realization {
                 optionalInt = intStream.max();
                 maxHourCount = optionalInt.getAsInt();
                 if(maxHourCount > ListSize/2){
-                    for(int i=0;i<23;i++){
+                    for(int i=0;i<24;i++){
                         if(counthour[i]==maxHourCount){
                             valuemaxHourCount = "" + i;
                         }
@@ -203,16 +211,371 @@ public class Realization {
                                 }
                             }
                         }
+                        else{
+                            valuemaxMonthCount="";
+                            for(int j=0;j<13;j++){
+                                if(countmonth[j]==maxMonthCount){
+                                    countmaxMonthCount++;
+                                    valuemaxMonthCount=valuemaxMonthCount+j+",";
+                                }
+                            }
+                            valuemaxMonthCount=valuemaxMonthCount.substring(0,valuemaxMonthCount.length()-1);
+                            if(countmaxMonthCount*maxMonthCount <= ListSize/2){
+                                valuemaxMonthCount="*";
+                            }
+                        }
                     }
                     else{
-                        valuemaxDayCount = "*";
-                        //код для этого случая
+                        valuemaxDayCount="";
+                        for(int j=0;j<13;j++){
+                            if(countmonth[j]==maxDayCount){
+                                countmaxDayCount++;
+                                valuemaxDayCount=valuemaxDayCount+j+",";
+                            }
+                        }
+                        valuemaxDayCount=valuemaxDayCount.substring(0,valuemaxDayCount.length()-1);
+                        if(countmaxDayCount*maxDayCount <= ListSize/2){
+                            valuemaxDayCount="*";
+                        }
+                        for(int i=0;i<ListSize;i++){
+                            if(cronDates.get(i).hour==Integer.parseInt(valuemaxHourCount.trim())){
+                                countmonth[cronDates.get(i).month]++;
+                            }
+                        }
+                        intStream = Arrays.stream(countmonth);
+                        optionalInt = intStream.max();
+                        maxMonthCount = optionalInt.getAsInt();
+                        if(maxMonthCount>ListSize/2){
+                            for(int i=0;i<13;i++){
+                                if(countmonth[i]==maxMonthCount){
+                                    valuemaxMonthCount = "" + i;
+                                }
+                            }
+                        }
+                        else{
+                            valuemaxMonthCount="";
+                            for(int j=0;j<13;j++){
+                                if(countmonth[j]==maxMonthCount){
+                                    countmaxMonthCount++;
+                                    valuemaxMonthCount=valuemaxMonthCount+j+",";
+                                }
+                            }
+                            valuemaxMonthCount=valuemaxMonthCount.substring(0,valuemaxMonthCount.length()-1);
+                            if(countmaxMonthCount*maxMonthCount <= ListSize/2){
+                                valuemaxMonthCount="*";
+                            }
+                        }
+                    }
+                }
+                else {
+                    valuemaxHourCount="";
+                    for(int j=0;j<24;j++){
+                        if(counthour[j]==maxHourCount){
+                            countmaxHourCount++;
+                            valuemaxHourCount=valuemaxHourCount+j+",";
+                        }
+                    }
+                    valuemaxHourCount=valuemaxHourCount.substring(0,valuemaxHourCount.length()-1);
+                    if(countmaxHourCount*maxHourCount <= ListSize/2){
+                        valuemaxHourCount="*";
+                    }
+                    for(int i=0;i<ListSize;i++){
+                        if(cronDates.get(i).minutes==Integer.parseInt(valuemaxMinutesCount.trim())){
+                            countday[cronDates.get(i).day]++;
+                        }
+                    }
+                    intStream = Arrays.stream(countday);
+                    optionalInt = intStream.max();
+                    maxDayCount = optionalInt.getAsInt();
+                    if(maxDayCount>ListSize/2){
+                        for(int i=0;i<32;i++){
+                            if(countday[i]==maxDayCount){
+                                valuemaxDayCount = "" + i;
+                            }
+                        }
+                        for(int i=0;i<ListSize;i++){
+                            if(cronDates.get(i).day==Integer.parseInt(valuemaxDayCount.trim())){
+                                countmonth[cronDates.get(i).month]++;
+                            }
+                        }
+                        intStream = Arrays.stream(countmonth);
+                        optionalInt = intStream.max();
+                        maxMonthCount = optionalInt.getAsInt();
+                        if(maxMonthCount>ListSize/2){
+                            for(int i=0;i<13;i++){
+                                if(countmonth[i]==maxMonthCount){
+                                    valuemaxMonthCount = "" + i;
+                                }
+                            }
+                        }
+                        else{
+                            valuemaxMonthCount="";
+                            for(int j=0;j<13;j++){
+                                if(countmonth[j]==maxMonthCount){
+                                    countmaxMonthCount++;
+                                    valuemaxMonthCount=valuemaxMonthCount+j+",";
+                                }
+                            }
+                            valuemaxMonthCount=valuemaxMonthCount.substring(0,valuemaxMonthCount.length()-1);
+                            if(countmaxMonthCount*maxMonthCount <= ListSize/2){
+                                valuemaxMonthCount="*";
+                            }
+                        }
+                    }
+                    else{
+                        valuemaxDayCount="";
+                        for(int j=0;j<13;j++){
+                            if(countmonth[j]==maxDayCount){
+                                countmaxDayCount++;
+                                valuemaxDayCount=valuemaxDayCount+j+",";
+                            }
+                        }
+                        valuemaxDayCount=valuemaxDayCount.substring(0,valuemaxDayCount.length()-1);
+                        if(countmaxDayCount*maxDayCount <= ListSize/2){
+                            valuemaxDayCount="*";
+                        }
+                        for(int i=0;i<ListSize;i++){
+                            if(cronDates.get(i).minutes==Integer.parseInt(valuemaxMinutesCount.trim())){
+                                countmonth[cronDates.get(i).month]++;
+                            }
+                        }
+                        intStream = Arrays.stream(countmonth);
+                        optionalInt = intStream.max();
+                        maxMonthCount = optionalInt.getAsInt();
+                        if(maxMonthCount>ListSize/2){
+                            for(int i=0;i<13;i++){
+                                if(countmonth[i]==maxMonthCount){
+                                    valuemaxMonthCount = "" + i;
+                                }
+                            }
+                        }
+                        else{
+                            valuemaxMonthCount="";
+                            for(int j=0;j<13;j++){
+                                if(countmonth[j]==maxMonthCount){
+                                    countmaxMonthCount++;
+                                    valuemaxMonthCount=valuemaxMonthCount+j+",";
+                                }
+                            }
+                            valuemaxMonthCount=valuemaxMonthCount.substring(0,valuemaxMonthCount.length()-1);
+                            if(countmaxMonthCount*maxMonthCount <= ListSize/2){
+                                valuemaxMonthCount="*";
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                valuemaxMinutesCount="";
+                for(int j=0;j<60;j++){
+                    if(countminutes[j]==maxMinutesCount){
+                        countmaxMinutesCount++;
+                        valuemaxMinutesCount=valuemaxMinutesCount+j+",";
+                    }
+                }
+                valuemaxMinutesCount=valuemaxMinutesCount.substring(0,valuemaxMinutesCount.length()-1);
+                if(countmaxMinutesCount*maxMinutesCount <= ListSize/2){
+                    valuemaxMinutesCount="*";
+                }
+                for(int i=0;i<ListSize;i++){
+                    if(cronDates.get(i).seconds==Integer.parseInt(valuemaxSecondsCount.trim())){
+                        counthour[cronDates.get(i).hour]++;
+                    }
+                }
+                intStream = Arrays.stream(counthour);
+                optionalInt = intStream.max();
+                maxHourCount = optionalInt.getAsInt();
+                if(maxHourCount > ListSize/2){
+                    for(int i=0;i<24;i++){
+                        if(counthour[i]==maxHourCount){
+                            valuemaxHourCount = "" + i;
+                        }
+                    }
+                    for(int i=0;i<ListSize;i++){
+                        if(cronDates.get(i).hour==Integer.parseInt(valuemaxHourCount.trim())){
+                            countday[cronDates.get(i).day]++;
+                        }
+                    }
+                    intStream = Arrays.stream(countday);
+                    optionalInt = intStream.max();
+                    maxDayCount = optionalInt.getAsInt();
+                    if(maxDayCount>ListSize/2){
+                        for(int i=0;i<32;i++){
+                            if(countday[i]==maxDayCount){
+                                valuemaxDayCount = "" + i;
+                            }
+                        }
+                        for(int i=0;i<ListSize;i++){
+                            if(cronDates.get(i).day==Integer.parseInt(valuemaxDayCount.trim())){
+                                countmonth[cronDates.get(i).month]++;
+                            }
+                        }
+                        intStream = Arrays.stream(countmonth);
+                        optionalInt = intStream.max();
+                        maxMonthCount = optionalInt.getAsInt();
+                        if(maxMonthCount>ListSize/2){
+                            for(int i=0;i<13;i++){
+                                if(countmonth[i]==maxMonthCount){
+                                    valuemaxMonthCount = "" + i;
+                                }
+                            }
+                        }
+                        else{
+                            valuemaxMonthCount="";
+                            for(int j=0;j<13;j++){
+                                if(countmonth[j]==maxMonthCount){
+                                    countmaxMonthCount++;
+                                    valuemaxMonthCount=valuemaxMonthCount+j+",";
+                                }
+                            }
+                            valuemaxMonthCount=valuemaxMonthCount.substring(0,valuemaxMonthCount.length()-1);
+                            if(countmaxMonthCount*maxMonthCount <= ListSize/2){
+                                valuemaxMonthCount="*";
+                            }
+                        }
+                    }
+                    else{
+                        valuemaxDayCount="";
+                        for(int j=0;j<13;j++){
+                            if(countmonth[j]==maxDayCount){
+                                countmaxDayCount++;
+                                valuemaxDayCount=valuemaxDayCount+j+",";
+                            }
+                        }
+                        valuemaxDayCount=valuemaxDayCount.substring(0,valuemaxDayCount.length()-1);
+                        if(countmaxDayCount*maxDayCount <= ListSize/2){
+                            valuemaxDayCount="*";
+                        }
+                        for(int i=0;i<ListSize;i++){
+                            if(cronDates.get(i).hour==Integer.parseInt(valuemaxHourCount.trim())){
+                                countmonth[cronDates.get(i).month]++;
+                            }
+                        }
+                        intStream = Arrays.stream(countmonth);
+                        optionalInt = intStream.max();
+                        maxMonthCount = optionalInt.getAsInt();
+                        if(maxMonthCount>ListSize/2){
+                            for(int i=0;i<13;i++){
+                                if(countmonth[i]==maxMonthCount){
+                                    valuemaxMonthCount = "" + i;
+                                }
+                            }
+                        }
+                        else{
+                            valuemaxMonthCount="";
+                            for(int j=0;j<13;j++){
+                                if(countmonth[j]==maxMonthCount){
+                                    countmaxMonthCount++;
+                                    valuemaxMonthCount=valuemaxMonthCount+j+",";
+                                }
+                            }
+                            valuemaxMonthCount=valuemaxMonthCount.substring(0,valuemaxMonthCount.length()-1);
+                            if(countmaxMonthCount*maxMonthCount <= ListSize/2){
+                                valuemaxMonthCount="*";
+                            }
+                        }
+
 
                     }
                 }
                 else {
-                    valuemaxHourCount = "*";
-                    //код для этого случая
+                    valuemaxHourCount="";
+                    for(int j=0;j<24;j++){
+                        if(counthour[j]==maxHourCount){
+                            countmaxHourCount++;
+                            valuemaxHourCount=valuemaxHourCount+j+",";
+                        }
+                    }
+                    valuemaxHourCount=valuemaxHourCount.substring(0,valuemaxHourCount.length()-1);
+                    if(countmaxHourCount*maxHourCount <= ListSize/2){
+                        valuemaxHourCount="*";
+                    }
+                    for(int i=0;i<ListSize;i++){
+                        if(cronDates.get(i).seconds==Integer.parseInt(valuemaxSecondsCount.trim())){
+                            countday[cronDates.get(i).day]++;
+                        }
+                    }
+                    intStream = Arrays.stream(countday);
+                    optionalInt = intStream.max();
+                    maxDayCount = optionalInt.getAsInt();
+                    System.out.println(maxDayCount);
+                    if(maxDayCount>ListSize/2){
+                        for(int i=0;i<32;i++){
+                            if(countday[i]==maxDayCount){
+                                valuemaxDayCount = "" + i;
+                            }
+                        }
+                        for(int i=0;i<ListSize;i++){
+                            if(cronDates.get(i).day==Integer.parseInt(valuemaxDayCount.trim())){
+                                countmonth[cronDates.get(i).month]++;
+                            }
+                        }
+                        intStream = Arrays.stream(countmonth);
+                        optionalInt = intStream.max();
+                        maxMonthCount = optionalInt.getAsInt();
+                        if(maxMonthCount>ListSize/2){
+                            for(int i=0;i<13;i++){
+                                if(countmonth[i]==maxMonthCount){
+                                    valuemaxMonthCount = "" + i;
+                                }
+                            }
+                        }
+                        else{
+                            valuemaxMonthCount="";
+                            for(int j=0;j<13;j++){
+                                if(countmonth[j]==maxMonthCount){
+                                    countmaxMonthCount++;
+                                    valuemaxMonthCount=valuemaxMonthCount+j+",";
+                                }
+                            }
+                            valuemaxMonthCount=valuemaxMonthCount.substring(0,valuemaxMonthCount.length()-1);
+                            if(countmaxMonthCount*maxMonthCount <= ListSize/2){
+                                valuemaxMonthCount="*";
+                            }
+                        }
+                    }
+                    else{
+                        valuemaxDayCount="";
+                        for(int j=0;j<32;j++){
+                            if(countday[j]==maxDayCount){
+                                countmaxDayCount++;
+                                valuemaxDayCount=valuemaxDayCount+j+",";
+
+                            }
+                        }
+                        valuemaxDayCount=valuemaxDayCount.substring(0,valuemaxDayCount.length()-1);
+                        if(countmaxDayCount*maxDayCount <= ListSize/2){
+                            valuemaxDayCount="*";
+                        }
+                        for(int i=0;i<ListSize;i++){
+                            if(cronDates.get(i).seconds==Integer.parseInt(valuemaxSecondsCount.trim())){
+                                countmonth[cronDates.get(i).month]++;
+                            }
+                        }
+                        intStream = Arrays.stream(countmonth);
+                        optionalInt = intStream.max();
+                        maxMonthCount = optionalInt.getAsInt();
+                        if(maxMonthCount>ListSize/2){
+                            for(int i=0;i<13;i++){
+                                if(countmonth[i]==maxMonthCount){
+                                    valuemaxMonthCount = "" + i;
+                                }
+                            }
+                        }
+                        else{
+                            valuemaxMonthCount="";
+                            for(int j=0;j<13;j++){
+                                if(countmonth[j]==maxMonthCount){
+                                    countmaxMonthCount++;
+                                    valuemaxMonthCount=valuemaxMonthCount+j+",";
+                                }
+                            }
+                            valuemaxMonthCount=valuemaxMonthCount.substring(0,valuemaxMonthCount.length()-1);
+                            if(countmaxMonthCount*maxMonthCount <= ListSize/2){
+                                valuemaxMonthCount="*";
+                            }
+                        }
+                    }
 
                 }
             }
@@ -220,7 +583,13 @@ public class Realization {
 
 
         String result=valuemaxSecondsCount + " " + valuemaxMinutesCount + " " + valuemaxHourCount+ " " +valuemaxDayCount+ " " +valuemaxMonthCount+ " " +valuemaxWeekdayCount;
-        System.out.println(result);
+        return result;
     }
-    public String getImplementationInfo;
+
+
+    public String getImplementationInfo(){
+        String Info = "Дусеев Ильгиз Газизович, Realization, com.duseev.ilgiz, https://github.com/Ilgiz2003";
+        return Info;
+    }
+
 }
